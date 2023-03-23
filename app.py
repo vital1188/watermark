@@ -34,6 +34,10 @@ def upload():
     text_color = request.form['text_color']
     position = request.form['position']
     scale = int(request.form['scale'])
+    margin_top = int(request.form['margin_top'])
+    margin_bottom = int(request.form['margin_bottom'])
+    margin_left = int(request.form['margin_left'])
+    margin_right = int(request.form['margin_right'])
 
     image_filename = secure_filename(image.filename)
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
@@ -66,21 +70,22 @@ def upload():
 
     # Determine the position
     if position == "top-left":
-        watermark_position = (0, 0)
+        watermark_position = (margin_left, margin_top)
     elif position == "top-right":
-        watermark_position = (original_image.width - watermark_width, 0)
+        watermark_position = (original_image.width -
+                              watermark_width - margin_right, margin_top)
     elif position == "bottom-left":
-        watermark_position = (0, original_image.height - watermark_height)
+        watermark_position = (
+            margin_left, original_image.height - watermark_height - margin_bottom)
     elif position == "bottom-right":
-        watermark_position = (original_image.width - watermark_width,
-                              original_image.height - watermark_height)
+        watermark_position = (original_image.width - watermark_width - margin_right,
+                              original_image.height - watermark_height - margin_bottom)
 
     # Add the watermark and save the result
     result = add_watermark(original_image, watermark_image, watermark_position)
     output_filename = f"watermarked_{image_filename}"
     output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
     result.save(output_path)
-
     return send_from_directory(app.config['UPLOAD_FOLDER'], output_filename, as_attachment=True)
 
 
